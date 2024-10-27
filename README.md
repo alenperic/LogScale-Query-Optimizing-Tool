@@ -99,40 +99,6 @@ The **LogScale Query Optimizing Tool** is designed to help users construct effic
 
   - Click the "Copy to Clipboard" button under the optimized query to copy it for use in your LogScale environment.
 
-## Contributing
-
-Contributions are welcome! To contribute to the project, please follow these steps:
-
-1. **Fork the Repository**
-
-   - Click the "Fork" button at the top right corner of the repository page.
-
-2. **Create a New Branch**
-
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-3. **Make Your Changes**
-
-   - Implement your feature or fix.
-
-4. **Commit Your Changes**
-
-   ```bash
-   git commit -m 'Add your feature'
-   ```
-
-5. **Push to the Branch**
-
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-6. **Open a Pull Request**
-
-   - Go to your forked repository and click the "New Pull Request" button.
-
 ## Contact
 
 For questions, suggestions, or feedback, please open an issue or contact [alenperic](https://github.com/alenperic).
