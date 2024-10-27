@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LogScale Query Optimizer</title>
+    <meta name="description" content="Optimize your LogScale queries locally without any server interaction.">
+    <meta name="keywords" content="LogScale, query optimizer, cybersecurity, online tool, text processing, security, web application">
+    <meta name="author" content="alenperic">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2b2f3a;
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .header img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            vertical-align: middle;
+        }
+        #title {
+            margin-top: 60px;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-align: center;
+            width: 100%;
+        }
+        #wrapper {
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: center;
+            align-items: flex-start;
+            width: 100%;
+        }
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .button-group {
+            margin-bottom: 20px;
+        }
+        .button-group h3 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            text-align: center;
+        }
+        .button-group .filter-button {
+            display: inline-block;
+            margin: 2px;
+        }
+        .button-group button {
+            padding: 5px 10px;
+            margin: 2px;
+            color: white;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            position: relative;
+        }
+        .filter-button {
+            background-color: #007BFF;
+            border-color: #007BFF;
+        }
+        .filter-button:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .operator-button {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .operator-button:hover {
+            background-color: #b02a37;
+            border-color: #b02a37;
+        }
+        .limiter-button {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .limiter-button:hover {
+            background-color: #1e7e34;
+            border-color: #1e7e34;
+        }
+        .regex-button {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        .regex-button:hover {
+            background-color: #5936a6;
+            border-color: #5936a6;
+        }
+        .cheat-button {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .cheat-button:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+        }
+        .textarea-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+            margin-right: 30px;
+        }
+        .right-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+            margin-left: 30px;
+            margin-right: 30px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            font-size: 16px;
+            margin: 10px;
+            background-color: #1e2129;
+            color: #ddd;
+            border: none;
+            border-radius: 4px;
+            overflow: auto;
+            resize: none;
+        }
+        .copy-button {
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            align-self: center;
+        }
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .clear-button {
+            padding: 10px;
+            margin: 0 5px;
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .revert-button {
+            padding: 10px;
+            margin: 0 5px;
+            background-color: #ffc107;
+            border: none;
+            color: black;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .description {
+            margin-top: 20px;
+            text-align: center;
+            width: 80%;
+            font-size: 0.9em;
+            align-self: center;
+        }
+        .warnings-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 152, 0, 0.9);
+            color: #1e2129;
+            padding: 10px;
+            border-top-left-radius: 4px;
+            border-top-right-radius: 4px;
+            font-size: 0.9em;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .warnings-overlay h3 {
+            margin-top: 0;
+        }
+        .warnings-overlay ul {
+            list-style-type: disc;
+            padding-left: 20px;
+            margin: 0;
+        }
+        .apply-button {
+            padding: 5px 10px;
+            margin-left: 10px;
+            background-color: #2196F3;
+            border: none;
+            color: white;
+            text-align: center;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .apply-button:hover {
+            background-color: #1976D2;
+        }
+        .cheat-sheet {
+            width: 90%;
+            margin: 20px auto;
+            background-color: #1e2129;
+            color: #ddd;
+            padding: 20px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .cheat-sheet-content, .cheat-sheet-examples {
+            flex: 1 1 45%;
+            min-width: 300px;
+            margin: 10px;
+        }
+        .cheat-sheet-content h2, .cheat-sheet-examples h2 {
+            text-align: center;
+            margin-top: 0;
+            color: #4caf50;
+        }
+        .cheat-sheet h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        .cheat-sheet button {
+            background-color: #6c757d;
+            color: white;
+            border: 1px solid #6c757d;
+            padding: 5px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+            text-align: left;
+            font-size: 12px;
+        }
+        .cheat-sheet button:hover {
+            background-color: #5a6268;
+            border-color: #5a6268;
+        }
+        .cheat-sheet p {
+            margin: 0 0 10px;
+        }
+        .cheat-sheet ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .cheat-sheet li {
+            margin-bottom: 10px;
+        }
+        .cheat-sheet .explanation {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        @media screen and (max-width: 1080px) {
+            #wrapper {
+                flex-wrap: wrap;
+            }
+            .textarea-container, .right-container {
+                width: 100%;
+                margin-right: 0;
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .button-group {
+                margin-right: 10px;
+            }
+            .cheat-sheet-content, .cheat-sheet-examples {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="https://github.com/alenperic" target="_blank">
+            <img src="https://avatars.githubusercontent.com/u/20021065?v=4" alt="GitHub Profile Icon" />
+            alenperic
+        </a>
+    </div>
+
+    <div id="title">LogScale Query Optimizer</div>
+
+    <div id="wrapper">
+        <div class="sidebar">
+            <div class="button-group">
+                <h3>Filters</h3>
+                <div>
+                    <button class="filter-button" data-insert="source_category:" onclick="insertAtCursor(this.dataset.insert)">source_category:</button>
+                    <button class="filter-button" data-insert="source_host:" onclick="insertAtCursor(this.dataset.insert)">source_host:</button>
+                    <button class="filter-button" data-insert="source_address:" onclick="insertAtCursor(this.dataset.insert)">source_address:</button>
+                </div>
+                <div>
+                    <button class="filter-button" data-insert="destination_address:" onclick="insertAtCursor(this.dataset.insert)">destination_address:</button>
+                    <button class="filter-button" data-insert='os:"Windows"' onclick="insertAtCursor(this.dataset.insert)">Windows OS</button>
+                    <button class="filter-button" data-insert='os:"macOS"' onclick="insertAtCursor(this.dataset.insert)">macOS</button>
+                    <button class="filter-button" data-insert='os:"Linux"' onclick="insertAtCursor(this.dataset.insert)">Linux OS</button>
+                </div>
+            </div>
+            <div class="button-group">
+                <h3>Operators</h3>
+                <button class="operator-button" data-insert=" AND " onclick="insertAtCursor(this.dataset.insert)">AND</button>
+                <button class="operator-button" data-insert=" OR " onclick="insertAtCursor(this.dataset.insert)">OR</button>
+                <button class="operator-button" data-insert=" NOT " onclick="insertAtCursor(this.dataset.insert)">NOT</button>
+            </div>
+            <div class="button-group">
+                <h3>Limiters</h3>
+                <button class="limiter-button" data-insert=" limit=1000" onclick="insertAtCursor(this.dataset.insert)">limit=1000</button>
+                <button class="limiter-button" data-insert=" limit=5000" onclick="insertAtCursor(this.dataset.insert)">limit=5000</button>
+                <button class="limiter-button" data-insert=" limit=max" onclick="insertAtCursor(this.dataset.insert)">limit=max</button>
+            </div>
+            <div class="button-group">
+                <h3>RegEx Functions</h3>
+                <div>
+                    <button class="regex-button" data-insert="match('pattern')" onclick="insertAtCursor(this.dataset.insert)">match('pattern')</button>
+                    <button class="regex-button" data-insert="contains('string')" onclick="insertAtCursor(this.dataset.insert)">contains('string')</button>
+                    <button class="regex-button" data-insert="extract(field, /regex/)" onclick="insertAtCursor(this.dataset.insert)">extract(field, /regex/)</button>
+                </div>
+                <div>
+                    <button class="regex-button" data-insert="replace(field, /regex/, 'replacement')" onclick="insertAtCursor(this.dataset.insert)">replace(field, /regex/, 'replacement')</button>
+                    <button class="regex-button" data-insert="split(field, /regex/)" onclick="insertAtCursor(this.dataset.insert)">split(field, /regex/)</button>
+                </div>
+            </div>
+        </div>
+        <div class="textarea-container">
+            <textarea id="queryInput" placeholder="Enter your LogScale query here..."></textarea>
+            <div class="action-buttons">
+                <button class="clear-button" onclick="clearInput()">Clear</button>
+                <button class="revert-button" onclick="revertInput()">Revert</button>
+            </div>
+        </div>
+        <div class="right-container">
+            <textarea id="queryOutput" placeholder="Optimized query will appear here..." readonly></textarea>
+            <button class="copy-button" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="description">
+        <p>
+            Paste your LogScale query in the left box, use the buttons to build or modify your query, and see the optimized query on the right in real-time. Warnings about potential resource-intensive operations will be displayed at the bottom if applicable. Use the "Apply Recommendations" button within the alert to automatically adjust your query based on the suggestions.
+        </p>
+    </div>
+
+    <div class="cheat-sheet">
+        <div class="cheat-sheet-content">
+            <h2>LogScale Query Syntax Cheat Sheet</h2>
+            <ul>
+                <li>
+                    <button class="cheat-button" data-insert="field:value" onclick="insertAtCursor(this.dataset.insert)">field:value</button>
+                    <div class="explanation">Search where field equals value.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="field:<operator>value" onclick="insertAtCursor(this.dataset.insert)">field:&lt;operator&gt;value</button>
+                    <div class="explanation">Use operators like =, &lt;, &gt;, &lt;=, &gt;=.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="AND" onclick="insertAtCursor(this.dataset.insert)">AND</button>
+                    <button class="cheat-button" data-insert="OR" onclick="insertAtCursor(this.dataset.insert)">OR</button>
+                    <button class="cheat-button" data-insert="NOT" onclick="insertAtCursor(this.dataset.insert)">NOT</button>
+                    <div class="explanation">Combine conditions using Boolean operators.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="()" onclick="insertAtCursor(this.dataset.insert)">()</button>
+                    <div class="explanation">Group conditions to control evaluation order.</div>
+                </li>
+            </ul>
+            <h3>Functions</h3>
+            <ul>
+                <li>
+                    <button class="cheat-button" data-insert="contains(string)" onclick="insertAtCursor(this.dataset.insert)">contains(string)</button>
+                    <div class="explanation">Check if a field contains a substring.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="match(regex)" onclick="insertAtCursor(this.dataset.insert)">match(regex)</button>
+                    <div class="explanation">Match a field against a regular expression.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="limit=number" onclick="insertAtCursor(this.dataset.insert)">limit=number</button>
+                    <div class="explanation">Limit the number of results returned.</div>
+                </li>
+            </ul>
+            <h3>Regular Expressions</h3>
+            <ul>
+                <li>
+                    <button class="cheat-button" data-insert="^" onclick="insertAtCursor(this.dataset.insert)">^</button>
+                    <div class="explanation">Start of a string.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="$" onclick="insertAtCursor(this.dataset.insert)">$</button>
+                    <div class="explanation">End of a string.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="." onclick="insertAtCursor(this.dataset.insert)">.</button>
+                    <div class="explanation">Any single character.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="*" onclick="insertAtCursor(this.dataset.insert)">*</button>
+                    <div class="explanation">Zero or more of the preceding element.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="+" onclick="insertAtCursor(this.dataset.insert)">+</button>
+                    <div class="explanation">One or more of the preceding element.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="?" onclick="insertAtCursor(this.dataset.insert)">?</button>
+                    <div class="explanation">Zero or one of the preceding element.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="[abc]" onclick="insertAtCursor(this.dataset.insert)">[abc]</button>
+                    <div class="explanation">Any one character of a, b, or c.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="\\d" onclick="insertAtCursor(this.dataset.insert)">\\d</button>
+                    <div class="explanation">Any digit (0-9).</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-insert="\\w" onclick="insertAtCursor(this.dataset.insert)">\\w</button>
+                    <div class="explanation">Any word character.</div>
+                </li>
+            </ul>
+            <h3>Tips</h3>
+            <ul>
+                <li>
+                    Use specific filters like 
+                    <button class="cheat-button" data-insert="source_category:" onclick="insertAtCursor(this.dataset.insert)">source_category</button> or 
+                    <button class="cheat-button" data-insert="source_host:" onclick="insertAtCursor(this.dataset.insert)">source_host</button>.
+                    <div class="explanation">Narrow down results with specific fields.</div>
+                </li>
+                <li>
+                    Avoid leading wildcards like 
+                    <button class="cheat-button" data-insert="*error" onclick="insertAtCursor(this.dataset.insert)">*error</button>.
+                    <div class="explanation">They are resource-intensive.</div>
+                </li>
+                <li>
+                    Include a 
+                    <button class="cheat-button" data-insert="limit=" onclick="insertAtCursor(this.dataset.insert)">limit</button> clause.
+                    <div class="explanation">Control the number of results.</div>
+                </li>
+                <li>
+                    Group conditions with parentheses to clarify logic.
+                </li>
+            </ul>
+        </div>
+        <div class="cheat-sheet-examples">
+            <h2>Example Hunting Queries</h2>
+            <ul>
+                <li>
+                    <button class="cheat-button" data-query="source_category:auth AND action:failed" onclick="insertExample(this.dataset.query)">source_category:auth AND action:failed</button>
+                    <div class="explanation">Find authentication failures across all sources.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='source_host:"webserver1" AND status_code:500' onclick="insertExample(this.dataset.query)">source_host:"webserver1" AND status_code:500</button>
+                    <div class="explanation">Find server errors on a specific web server.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query="error OR exception NOT debug" onclick="insertExample(this.dataset.query)">error OR exception NOT debug</button>
+                    <div class="explanation">Search for logs containing "error" or "exception" excluding debug messages.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query="source_address:10.0.0.* AND port:22" onclick="insertExample(this.dataset.query)">source_address:10.0.0.* AND port:22</button>
+                    <div class="explanation">Find SSH access attempts from the 10.0.0.x network.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='match("Failed password for invalid user \\w+ from \\d{1,3}(\\.\\d{1,3}){3}")' onclick="insertExample(this.dataset.query)">match('Failed password for invalid user \w+ from \d{1,3}(\.\d{1,3}){3}')</button>
+                    <div class="explanation">Detect invalid user login attempts via regex pattern matching.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query="destination_address:192.168.1.100 AND bytes_transferred>1000000" onclick="insertExample(this.dataset.query)">destination_address:192.168.1.100 AND bytes_transferred&gt;1000000</button>
+                    <div class="explanation">Identify large data transfers to a specific host.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='process_name:"cmd.exe" AND user!="admin"' onclick="insertExample(this.dataset.query)">process_name:"cmd.exe" AND user!="admin"</button>
+                    <div class="explanation">Find command prompt usage by non-admin users.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='event_type:"login" AND user IN ("alice", "bob") AND success=false' onclick="insertExample(this.dataset.query)">event_type:"login" AND user IN ("alice", "bob") AND success=false</button>
+                    <div class="explanation">Unsuccessful login attempts by specific users.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='source_category:"firewall" AND action:"blocked" AND limit=500' onclick="insertExample(this.dataset.query)">source_category:"firewall" AND action:"blocked" AND limit=500</button>
+                    <div class="explanation">Retrieve the latest 500 blocked actions from firewall logs.</div>
+                </li>
+                <li>
+                    <button class="cheat-button" data-query='url_path:"/admin" AND status_code=200 AND NOT source_address IN ("192.168.1.0/24")' onclick="insertExample(this.dataset.query)">url_path:"/admin" AND status_code=200 AND NOT source_address IN ("192.168.1.0/24")</button>
+                    <div class="explanation">Detect unauthorized access to admin pages from outside the local network.</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="notification" style="display:none; position: fixed; bottom: 20px; right: 20px; background-color: #4caf50; color: white; padding: 10px; border-radius: 4px;">Copied to clipboard!</div>
+
+    <div class="warnings-overlay" id="warningsOverlay" style="display: none;">
+        <div>
+            <h3>Potential Issues:</h3>
+            <ul id="warningsList"></ul>
+        </div>
+        <button class="apply-button" onclick="applyRecommendations()" id="applyButton" style="display: none;">Apply Recommendations</button>
+    </div>
+
+    <script>
+        // Variables to store input history for revert functionality
+        let inputHistory = [];
+        let historyIndex = -1;
+        const maxHistory = 10;
+
+        function insertAtCursor(text) {
+            const textarea = document.getElementById('queryInput');
+            saveHistory();
+            const startPos = textarea.selectionStart;
+            const endPos = textarea.selectionEnd;
+            const beforeValue = textarea.value.substring(0, startPos);
+            const afterValue = textarea.value.substring(endPos, textarea.value.length);
+
+            textarea.value = beforeValue + text + afterValue;
+            textarea.focus();
+            const cursorPosition = startPos + text.length;
+            textarea.selectionStart = cursorPosition;
+            textarea.selectionEnd = cursorPosition;
+            optimizeQuery();
+        }
+
+        function insertExample(example) {
+            const textarea = document.getElementById('queryInput');
+            saveHistory();
+            textarea.value = example;
+            textarea.focus();
+            optimizeQuery();
+        }
+
+        function clearInput() {
+            const textarea = document.getElementById('queryInput');
+            saveHistory();
+            textarea.value = '';
+            optimizeQuery();
+        }
+
+        function saveHistory() {
+            const textarea = document.getElementById('queryInput');
+            inputHistory.push(textarea.value);
+            if (inputHistory.length > maxHistory) {
+                inputHistory.shift();
+            }
+            historyIndex = inputHistory.length - 1;
+        }
+
+        function revertInput() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const textarea = document.getElementById('queryInput');
+                textarea.value = inputHistory[historyIndex];
+                optimizeQuery();
+            } else if (historyIndex === 0) {
+                const textarea = document.getElementById('queryInput');
+                textarea.value = inputHistory[0];
+                optimizeQuery();
+            }
+        }
+
+        let lastWarnings = [];
+
+        function optimizeQuery() {
+            const inputQuery = document.getElementById('queryInput').value;
+            let optimizedQuery = inputQuery;
+
+            let warnings = [];
+
+            optimizedQuery = optimizedQuery.replace(/\s+/g, ' ').trim();
+
+            if (optimizedQuery.length > 0) {
+                if (!/@timestamp\b/.test(optimizedQuery)) {
+                    warnings.push("Consider narrowing down the search timeframe using '@timestamp' field.");
+                } else if (/@timestamp\s*>=\s*\S+/.test(optimizedQuery)) {
+                } else {
+                    warnings.push("Your search timeframe seems unlimited. Specify a timeframe to improve performance.");
+                }
+
+                let taggedFields = optimizedQuery.match(/#\w+=[^\s|]+/g);
+                if (!taggedFields || taggedFields.length === 0) {
+                    warnings.push("Use tagged fields (starting with '#') to narrow down the result set.");
+                }
+
+                let fieldFilters = optimizedQuery.match(/\b\w+:[^\s|]+/g);
+                if (!fieldFilters || fieldFilters.length === 0) {
+                    warnings.push("Consider adding field filters to further narrow down the dataset.");
+                }
+
+                if (!/match\(/i.test(optimizedQuery) && !/contains\(/i.test(optimizedQuery)) {
+                    warnings.push("Utilize 'match()' or 'contains()' with regex for unparsed fields or further filtering.");
+                }
+
+                optimizedQuery = applyBestPractices(optimizedQuery);
+            }
+
+            lastWarnings = warnings;
+
+            document.getElementById('queryOutput').value = optimizedQuery;
+
+            displayWarnings(warnings);
+        }
+
+        function applyBestPractices(query) {
+            let parts = query.split('|').map(part => part.trim());
+
+            let timeFilter = [];
+            let tagFilters = [];
+            let fieldFilters = [];
+            let excludeFilters = [];
+            let regexFilters = [];
+            let transformations = [];
+            let aggregations = [];
+            let visualizations = [];
+
+            parts.forEach(part => {
+                if (/@timestamp\b/.test(part)) {
+                    timeFilter.push(part);
+                } else if (/#\w+=[^\s|]+/.test(part)) {
+                    tagFilters.push(part);
+                } else if (/\b\w+:[^\s|]+/.test(part)) {
+                    fieldFilters.push(part);
+                } else if (/NOT\s+\w+:[^\s|]+/i.test(part)) {
+                    excludeFilters.push(part);
+                } else if (/match\(/i.test(part) || /contains\(/i.test(part)) {
+                    regexFilters.push(part);
+                } else if (/eval\(/i.test(part) || /format\(/i.test(part) || /transform\(/i.test(part)) {
+                    transformations.push(part);
+                } else if (/groupBy\(/i.test(part) || /\b(sum|count|avg|min|max|top)\(/i.test(part)) {
+                    aggregations.push(part);
+                } else if (/sort\(/i.test(part) || /table\(/i.test(part)) {
+                    visualizations.push(part);
+                } else {
+                }
+            });
+
+            let optimizedParts = [];
+
+            if (timeFilter.length > 0) {
+                optimizedParts.push(timeFilter.join(' | '));
+            }
+            if (tagFilters.length > 0) {
+                optimizedParts.push(tagFilters.join(' | '));
+            }
+            if (fieldFilters.length > 0) {
+                optimizedParts.push(fieldFilters.join(' | '));
+            }
+            if (excludeFilters.length > 0) {
+                optimizedParts.push(excludeFilters.join(' | '));
+            }
+            if (regexFilters.length > 0) {
+                optimizedParts.push(regexFilters.join(' | '));
+            }
+            if (transformations.length > 0) {
+                optimizedParts.push(transformations.join(' | '));
+            }
+            if (aggregations.length > 0) {
+                optimizedParts.push(aggregations.join(' | '));
+            }
+            if (visualizations.length > 0) {
+                optimizedParts.push(visualizations.join(' | '));
+            }
+
+            return optimizedParts.join(' | ');
+        }
+
+        function displayWarnings(warnings) {
+            const warningsOverlay = document.getElementById('warningsOverlay');
+            const warningsList = document.getElementById('warningsList');
+            const applyButton = document.getElementById('applyButton');
+
+            if (warnings.length > 0) {
+                warningsOverlay.style.display = 'flex';
+                warningsList.innerHTML = '';
+                warnings.forEach(warning => {
+                    const li = document.createElement('li');
+                    li.textContent = warning;
+                    warningsList.appendChild(li);
+                });
+                applyButton.style.display = 'inline-block';
+            } else {
+                warningsOverlay.style.display = 'none';
+                warningsList.innerHTML = '';
+                applyButton.style.display = 'none';
+            }
+        }
+
+        function applyRecommendations() {
+            let optimizedQuery = document.getElementById('queryOutput').value;
+
+            lastWarnings.forEach(warning => {
+                if (warning.includes("Consider narrowing down the search timeframe")) {
+                    optimizedQuery = '@timestamp >= now() - 1d | ' + optimizedQuery;
+                }
+                if (warning.includes("Your search timeframe seems unlimited")) {
+                    optimizedQuery = '@timestamp >= now() - 1d | ' + optimizedQuery;
+                }
+                if (warning.includes("Use tagged fields")) {
+                    optimizedQuery = '#tag=value | ' + optimizedQuery;
+                }
+                if (warning.includes("Consider adding field filters")) {
+                    optimizedQuery = 'field:value | ' + optimizedQuery;
+                }
+                if (warning.includes("Utilize 'match()' or 'contains()'")) {
+                    optimizedQuery += ' | match("pattern")';
+                }
+            });
+
+            document.getElementById('queryOutput').value = optimizedQuery;
+
+            optimizeQuery();
+        }
+
+        function copyToClipboard() {
+            const queryOutput = document.getElementById('queryOutput');
+            queryOutput.select();
+            navigator.clipboard.writeText(queryOutput.value)
+                .then(() => {
+                    const notification = document.getElementById('notification');
+                    notification.style.display = 'block';
+                    setTimeout(() => {
+                        notification.style.display = 'none';
+                    }, 2000);
+                })
+                .catch((err) => console.error('Error in copying text: ', err));
+        }
+
+        const queryInput = document.getElementById('queryInput');
+        queryInput.addEventListener('input', function() {
+            saveHistory();
+            optimizeQuery();
+        });
+
+        window.onload = function() {
+            saveHistory();
+            optimizeQuery();
+        };
+    </script>
+</body>
+</html>
